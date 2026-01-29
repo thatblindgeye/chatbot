@@ -1,0 +1,17 @@
+// Chatbot sidebar
+.pf-chatbot__sidebar {
+  display: flex;
+  flex-direction: column;
+  border-right: var(--pf-t--global--border--width--regular) solid var(--pf-t--global--border--color--default);
+  background-color: var(--pf-t--global--background--color--primary--default);
+  min-width: 48px;
+  width: 48px;
+}
+
+// Chatbot body (container for sidebar + ChatbotContent)
+.pf-chatbot__body {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0; // Allows flex child to shrink below content size
+}

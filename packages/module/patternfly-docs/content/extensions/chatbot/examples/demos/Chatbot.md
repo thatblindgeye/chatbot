@@ -75,6 +75,14 @@ import patternflyAvatar from '../Messages/patternfly_avatar.jpg';
 import { getTrackingProviders } from "@patternfly/chatbot/dist/dynamic/tracking";
 import { useEffect,useCallback, useRef, useState, FunctionComponent, MouseEvent, MouseEvent as ReactMouseEvent } from 'react';
 import saveAs from 'file-saver';
+import {PlusIcon} from '@patternfly/react-icons/dist/esm/icons/plus-icon';
+import {AngleDoubleRightIcon} from '@patternfly/react-icons/dist/esm/icons/angle-double-right-icon';
+import {OutlinedCommentsIcon} from '@patternfly/react-icons/dist/esm/icons/outlined-comments-icon';
+import {EllipsisVIcon} from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import ChatbotPopover from '@patternfly/chatbot/dist/dynamic/ChatbotPopover';
+import ChatbotSidebar from '@patternfly/chatbot/dist/dynamic/ChatbotSidebar';
+import { AngleDoubleLeftIcon } from '@patternfly/react-icons/dist/esm/icons/angle-double-left-icon';
+import { CubesIcon } from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 
 ### Basic ChatBot
 
@@ -201,5 +209,23 @@ A conversation transcript includes details from the entirety of a ChatBot conver
 In this example, file download is implemented with [file-saver](https://www.npmjs.com/package/file-saver).
 
 ```js file="./ChatbotTranscripts.tsx" isFullscreen
+
+```
+
+### Custom drawer with sources
+
+This demo showcases a fullscreen ChatBot with two key features:
+
+1. **Clickable source labels**: After each bot message, a "Sources" label appears that opens a ChatbotPopover displaying detailed source information, including links and descriptions of where the AI response drew its information from.
+
+2. **Custom drawer implementation**: Instead of using the built-in `<ChatbotConversationHistoryNav>` component, this demo shows how to build a custom drawer using PatternFly's `<Drawer>` component directly. This provides more flexibility for custom layouts and behaviors:
+   - A collapsible vertical side navigation with actions (New chat, Expand drawer)
+   - The side nav is only visible when the drawer is collapsed
+   - An expanded drawer panel with search, pinned conversations, and recent conversations
+   - Custom styling and layout control
+
+This pattern is useful when you need more control over the drawer's appearance and behavior than the built-in navigation component provides.
+
+```js file="./ChatbotCustomDrawerSources.tsx" isFullscreen
 
 ```
