@@ -23,19 +23,31 @@ import {
   Tab,
   TabTitleText,
   EmptyState,
-  EmptyStateBody
+  EmptyStateBody,
+  Page,
+  PageSection,
+  PageSidebar,
+  PageSidebarBody,
+  Masthead,
+  MastheadToggle,
+  MastheadMain,
+  MastheadBrand,
+  MastheadContent,
+  Nav,
+  NavList,
+  NavItem,
+  Checkbox
 } from '@patternfly/react-core';
 
 import Chatbot, { ChatbotDisplayMode } from '@patternfly/chatbot/dist/dynamic/Chatbot';
 import ChatbotContent from '@patternfly/chatbot/dist/dynamic/ChatbotContent';
-import ChatbotSidebar from '@patternfly/chatbot/dist/dynamic/ChatbotSidebar';
 import ChatbotWelcomePrompt from '@patternfly/chatbot/dist/dynamic/ChatbotWelcomePrompt';
 import ChatbotFooter, { ChatbotFootnote } from '@patternfly/chatbot/dist/dynamic/ChatbotFooter';
 import ChatbotPopover from '@patternfly/chatbot/dist/dynamic/ChatbotPopover';
 import MessageBar from '@patternfly/chatbot/dist/dynamic/MessageBar';
 import MessageBox from '@patternfly/chatbot/dist/dynamic/MessageBox';
 import Message, { MessageProps } from '@patternfly/chatbot/dist/dynamic/Message';
-import ChatbotHeader, { ChatbotHeaderMain, ChatbotHeaderTitle } from '@patternfly/chatbot/dist/dynamic/ChatbotHeader';
+import ChatbotConversationHistoryNav from '@patternfly/chatbot/dist/dynamic/ChatbotConversationHistoryNav';
 
 import { PlusIcon } from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import { AngleDoubleRightIcon } from '@patternfly/react-icons/dist/esm/icons/angle-double-right-icon';
@@ -153,15 +165,29 @@ export const ChatbotCustomDrawerSourcesDemo: FunctionComponent = () => {
   const [announcement, setAnnouncement] = useState<string>();
   const [activeHeaderTabKey, setActiveHeaderTabKey] = useState<string | number>(0);
   const [activeDrawerTabKey, setActiveDrawerTabKey] = useState<string | number>(0);
+  const [useCustomDrawer, setUseCustomDrawer] = useState(true);
   const scrollToBottomRef = useRef<HTMLDivElement>(null);
+  const expandButtonRef = useRef<HTMLButtonElement>(null);
+  const prevDrawerExpandedRef = useRef(isDrawerExpanded);
 
-  const displayMode = ChatbotDisplayMode.fullscreen;
+  const displayMode = ChatbotDisplayMode.embedded;
 
   useEffect(() => {
     if (messages.length > 2) {
       scrollToBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  useEffect(() => {
+    // When drawer transitions from open to closed, return focus to expand button
+    if (prevDrawerExpandedRef.current === true && isDrawerExpanded === false) {
+      // Use requestAnimationFrame to ensure button is rendered before focusing
+      requestAnimationFrame(() => {
+        expandButtonRef.current?.focus();
+      });
+    }
+    prevDrawerExpandedRef.current = isDrawerExpanded;
+  }, [isDrawerExpanded]);
 
   const generateId = () => {
     const id = Date.now() + Math.random();
@@ -365,128 +391,281 @@ export const ChatbotCustomDrawerSourcesDemo: FunctionComponent = () => {
     </DrawerPanelContent>
   );
 
-  const sidebarContent = (
-    <ChatbotSidebar>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem 0' }}>
-        <Button
-          variant="plain"
-          aria-label="New chat"
-          onClick={() => {
-            setMessages([]);
-            setIsDrawerExpanded(false);
-          }}
-          style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
-        >
-          <PlusIcon />
-        </Button>
+  const pageSidebar = (
+    <PageSidebar>
+      <PageSidebarBody>
+        <Nav>
+          <NavList>
+            <NavItem>Home</NavItem>
+            <NavItem>Catalog</NavItem>
+            <NavItem>APIs</NavItem>
+            <NavItem>Docs</NavItem>
+            <NavItem>Learning Paths</NavItem>
+            <NavItem>Clusters</NavItem>
+            <NavItem>Tech Radar</NavItem>
+          </NavList>
+        </Nav>
+      </PageSidebarBody>
+    </PageSidebar>
+  );
 
-        <Button
-          variant="plain"
-          aria-label={isDrawerExpanded ? 'Collapse drawer' : 'Expand drawer'}
-          onClick={() => setIsDrawerExpanded(!isDrawerExpanded)}
-          style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
-        >
-          <AngleDoubleRightIcon />
-        </Button>
-      </div>
-    </ChatbotSidebar>
+  const masthead = (
+    <Masthead>
+      <MastheadMain>
+        <MastheadBrand>Developer Lightspeed</MastheadBrand>
+      </MastheadMain>
+    </Masthead>
   );
 
   return (
-    <Drawer isExpanded={isDrawerExpanded} isInline position="left">
-      <DrawerContent panelContent={drawerPanel}>
-        <DrawerContentBody style={{ padding: 0 }}>
-          <Chatbot displayMode={displayMode}>
-            <ChatbotHeader>
-              <ChatbotHeaderMain>
-                <Tabs
-                  activeKey={activeHeaderTabKey}
-                  onSelect={(_event, tabIndex) => setActiveHeaderTabKey(tabIndex)}
-                  aria-label="Chatbot header tabs"
-                >
-                  <Tab eventKey={0} title={<TabTitleText>Tab 1</TabTitleText>} />
-                  <Tab eventKey={1} title={<TabTitleText>Tab 2</TabTitleText>} />
-                </Tabs>
-              </ChatbotHeaderMain>
-            </ChatbotHeader>
-            {activeHeaderTabKey === 0 ? (
-              <>
-                <div className="pf-chatbot__body">
-                  {sidebarContent}
-                  <ChatbotContent>
-                    <MessageBox announcement={announcement}>
-                      {messages.length === 0 ? (
-                        <ChatbotWelcomePrompt
-                          title="Hello, Rachael"
-                          description="How can I help you today?"
-                          prompts={welcomePrompts}
-                        />
-                      ) : (
-                        messages.map((message, index) => {
-                          if (index === messages.length - 1) {
-                            return (
-                              <div key={message.id}>
-                                <div ref={scrollToBottomRef}></div>
-                                <Message {...message} />
-                                {message.role === 'bot' && !message.isLoading && (
-                                  <div style={{ padding: '0 1rem 1rem 3.5rem' }}>
-                                    <ChatbotPopover
-                                      headerContent="Sources"
-                                      bodyContent={sourcesPopoverContent}
-                                      position="top"
-                                      maxWidth="400px"
-                                      showClose={true}
-                                    >
-                                      <Button variant="link" isInline style={{ padding: 0 }}>
-                                        <Label color="blue" style={{ cursor: 'pointer' }}>
-                                          3 Sources
-                                        </Label>
-                                      </Button>
-                                    </ChatbotPopover>
+    <Page masthead={masthead} sidebar={pageSidebar}>
+      <PageSection>
+        <Title headingLevel="h1" size="2xl" style={{ marginBottom: '1rem' }}>
+          Developer Lightspeed
+        </Title>
+        <Checkbox
+          label="Use custom drawer"
+          isChecked={useCustomDrawer}
+          onChange={(_event, checked) => setUseCustomDrawer(checked)}
+          id="custom-drawer-toggle"
+          style={{ marginBottom: '1rem' }}
+        />
+        <Tabs
+          activeKey={activeHeaderTabKey}
+          onSelect={(_event, tabIndex) => setActiveHeaderTabKey(tabIndex)}
+          aria-label="Chatbot tabs"
+          style={{ marginBottom: '1rem' }}
+        >
+          <Tab eventKey={0} title={<TabTitleText>Chat</TabTitleText>} />
+          <Tab eventKey={1} title={<TabTitleText>Notebooks</TabTitleText>} />
+        </Tabs>
+        <div style={{ display: 'flex', height: '600px' }}>
+          {!isDrawerExpanded && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                borderRight:
+                  'var(--pf-t--global--border--width--regular) solid var(--pf-t--global--border--color--default)',
+                backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+                minWidth: '48px',
+                width: '48px',
+                gap: '0.5rem',
+                padding: '0.5rem 0'
+              }}
+            >
+              <Button
+                variant="plain"
+                aria-label="New chat"
+                onClick={() => {
+                  setMessages([]);
+                  setIsDrawerExpanded(false);
+                }}
+                style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+              >
+                <PlusIcon />
+              </Button>
+
+              <Button
+                ref={expandButtonRef}
+                variant="plain"
+                aria-label="Expand drawer"
+                onClick={() => setIsDrawerExpanded(true)}
+                style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+              >
+                <AngleDoubleRightIcon />
+              </Button>
+            </div>
+          )}
+          {useCustomDrawer ? (
+            <Drawer isExpanded={isDrawerExpanded} isInline position="left">
+              <DrawerContent panelContent={drawerPanel}>
+                <DrawerContentBody style={{ padding: 0, display: 'flex', flex: 1 }}>
+                  {activeHeaderTabKey === 0 ? (
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <Chatbot displayMode={displayMode}>
+                        <ChatbotContent>
+                          <MessageBox announcement={announcement}>
+                            {messages.length === 0 ? (
+                              <ChatbotWelcomePrompt
+                                title="Hello, Rachael"
+                                description="How can I help you today?"
+                                prompts={welcomePrompts}
+                              />
+                            ) : (
+                              messages.map((message, index) => {
+                                if (index === messages.length - 1) {
+                                  return (
+                                    <div key={message.id}>
+                                      <div ref={scrollToBottomRef}></div>
+                                      <Message {...message} />
+                                      {message.role === 'bot' && !message.isLoading && (
+                                        <div style={{ padding: '0 1rem 1rem 3.5rem' }}>
+                                          <ChatbotPopover
+                                            headerContent="Sources"
+                                            bodyContent={sourcesPopoverContent}
+                                            position="top"
+                                            maxWidth="400px"
+                                            showClose={true}
+                                          >
+                                            <Button variant="link" isInline style={{ padding: 0 }}>
+                                              <Label color="blue" style={{ cursor: 'pointer' }}>
+                                                3 Sources
+                                              </Label>
+                                            </Button>
+                                          </ChatbotPopover>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <div key={message.id}>
+                                    <Message {...message} />
+                                    {message.role === 'bot' && !message.isLoading && (
+                                      <div style={{ padding: '0 1rem 1rem 3.5rem' }}>
+                                        <ChatbotPopover
+                                          headerContent="Sources"
+                                          bodyContent={sourcesPopoverContent}
+                                          position="top"
+                                          maxWidth="400px"
+                                        >
+                                          <Button variant="link" isInline style={{ padding: 0 }}>
+                                            <Label color="blue" style={{ cursor: 'pointer' }}>
+                                              3 Sources
+                                            </Label>
+                                          </Button>
+                                        </ChatbotPopover>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            );
-                          }
-                          return (
-                            <div key={message.id}>
-                              <Message {...message} />
-                              {message.role === 'bot' && !message.isLoading && (
-                                <div style={{ padding: '0 1rem 1rem 3.5rem' }}>
-                                  <ChatbotPopover
-                                    headerContent="Sources"
-                                    bodyContent={sourcesPopoverContent}
-                                    position="top"
-                                    maxWidth="400px"
-                                  >
-                                    <Button variant="link" isInline style={{ padding: 0 }}>
-                                      <Label color="blue" style={{ cursor: 'pointer' }}>
-                                        3 Sources
-                                      </Label>
-                                    </Button>
-                                  </ChatbotPopover>
+                                );
+                              })
+                            )}
+                          </MessageBox>
+                        </ChatbotContent>
+                        <ChatbotFooter>
+                          <MessageBar onSendMessage={handleSend} isSendButtonDisabled={isSendButtonDisabled} />
+                          <ChatbotFootnote {...footnoteProps} />
+                        </ChatbotFooter>
+                      </Chatbot>
+                    </div>
+                  ) : (
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <EmptyState titleText="Notebooks" icon={CubesIcon} headingLevel="h4">
+                        <EmptyStateBody>This is the Notebooks tab content.</EmptyStateBody>
+                      </EmptyState>
+                    </div>
+                  )}
+                </DrawerContentBody>
+              </DrawerContent>
+            </Drawer>
+          ) : (
+            <ChatbotConversationHistoryNav
+              displayMode={displayMode}
+              onDrawerToggle={() => setIsDrawerExpanded(!isDrawerExpanded)}
+              isDrawerOpen={isDrawerExpanded}
+              setIsDrawerOpen={setIsDrawerExpanded}
+              activeItemId={undefined}
+              onSelectActiveItem={() => {}}
+              conversations={conversations}
+              onNewChat={() => {
+                setMessages([]);
+                setIsDrawerExpanded(false);
+              }}
+              handleTextInputChange={(value) => {
+                setSearchValue(value);
+                if (value === '') {
+                  setConversations(initialConversations);
+                } else {
+                  const filtered = initialConversations.filter((conv) =>
+                    conv.text.toLowerCase().includes(value.toLowerCase())
+                  );
+                  setConversations(filtered);
+                }
+              }}
+              drawerContent={
+                activeHeaderTabKey === 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <Chatbot displayMode={displayMode}>
+                      <ChatbotContent>
+                        <MessageBox announcement={announcement}>
+                          {messages.length === 0 ? (
+                            <ChatbotWelcomePrompt
+                              title="Hello, Rachael"
+                              description="How can I help you today?"
+                              prompts={welcomePrompts}
+                            />
+                          ) : (
+                            messages.map((message, index) => {
+                              if (index === messages.length - 1) {
+                                return (
+                                  <div key={message.id}>
+                                    <div ref={scrollToBottomRef}></div>
+                                    <Message {...message} />
+                                    {message.role === 'bot' && !message.isLoading && (
+                                      <div style={{ padding: '0 1rem 1rem 3.5rem' }}>
+                                        <ChatbotPopover
+                                          headerContent="Sources"
+                                          bodyContent={sourcesPopoverContent}
+                                          position="top"
+                                          maxWidth="400px"
+                                          showClose={true}
+                                        >
+                                          <Button variant="link" isInline style={{ padding: 0 }}>
+                                            <Label color="blue" style={{ cursor: 'pointer' }}>
+                                              3 Sources
+                                            </Label>
+                                          </Button>
+                                        </ChatbotPopover>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div key={message.id}>
+                                  <Message {...message} />
+                                  {message.role === 'bot' && !message.isLoading && (
+                                    <div style={{ padding: '0 1rem 1rem 3.5rem' }}>
+                                      <ChatbotPopover
+                                        headerContent="Sources"
+                                        bodyContent={sourcesPopoverContent}
+                                        position="top"
+                                        maxWidth="400px"
+                                      >
+                                        <Button variant="link" isInline style={{ padding: 0 }}>
+                                          <Label color="blue" style={{ cursor: 'pointer' }}>
+                                            3 Sources
+                                          </Label>
+                                        </Button>
+                                      </ChatbotPopover>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })
-                      )}
-                    </MessageBox>
-                  </ChatbotContent>
-                </div>
-                <ChatbotFooter>
-                  <MessageBar onSendMessage={handleSend} isSendButtonDisabled={isSendButtonDisabled} />
-                  <ChatbotFootnote {...footnoteProps} />
-                </ChatbotFooter>
-              </>
-            ) : (
-              <EmptyState titleText="Tab 2 content" icon={CubesIcon} headingLevel="h4">
-                <EmptyStateBody>This is the content for Tab 2 in the header.</EmptyStateBody>
-              </EmptyState>
-            )}
-          </Chatbot>
-        </DrawerContentBody>
-      </DrawerContent>
-    </Drawer>
+                              );
+                            })
+                          )}
+                        </MessageBox>
+                      </ChatbotContent>
+                      <ChatbotFooter>
+                        <MessageBar onSendMessage={handleSend} isSendButtonDisabled={isSendButtonDisabled} />
+                        <ChatbotFootnote {...footnoteProps} />
+                      </ChatbotFooter>
+                    </Chatbot>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+                    <EmptyState titleText="Notebooks" icon={CubesIcon} headingLevel="h4">
+                      <EmptyStateBody>This is the Notebooks tab content.</EmptyStateBody>
+                    </EmptyState>
+                  </div>
+                )
+              }
+            />
+          )}
+        </div>
+      </PageSection>
+    </Page>
   );
 };
