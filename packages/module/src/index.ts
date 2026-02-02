@@ -30,9 +30,6 @@ export * from './ChatbotModal';
 export { default as ChatbotPopover } from './ChatbotPopover';
 export * from './ChatbotPopover';
 
-export { default as ChatbotSidebar } from './ChatbotSidebar';
-export * from './ChatbotSidebar';
-
 export { default as ChatbotToggle } from './ChatbotToggle';
 export * from './ChatbotToggle';
 
