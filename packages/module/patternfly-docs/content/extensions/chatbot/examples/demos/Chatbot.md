@@ -215,3 +215,11 @@ This demo adds slash command support to a fullscreen ChatBot. The following lift
 ```js file="./ChatbotSlashCommands.tsx" isFullscreen
 
 ```
+
+### Commands with message context
+
+This demo extends the slash command pattern to support command parsing at send time. Selecting a command inserts its name into the `MessageBar`, where users can add context and select additional commands. When the message is sent, valid command tokens are parsed and executed while the remaining text is passed along as context; command requests are not added as user messages.
+
+```js file="./ChatbotCommandParsing.tsx" isFullscreen
+
+```
