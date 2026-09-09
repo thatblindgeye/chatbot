@@ -200,3 +200,18 @@ In this example, file download is implemented with [file-saver](https://www.npmj
 ```js file="./ChatbotTranscripts.tsx" isFullscreen
 
 ```
+
+### Slash commands
+
+This demo adds slash command support to a fullscreen ChatBot. The following lifts are required to wire up this behavior:
+
+1. **Controlled `MessageBar`:** Pass `value`, `onChange`, and `innerRef` props to `MessageBar` so the consumer owns the input state and has access to the underlying `<textarea>` ref (lines 81, 91, 360-368).
+2. **Trigger detection in `onChange`:** In the `onChange` handler, check whether the newly typed character is `/` (at the start of input or after a space). If so, record the trigger position and open the command menu (lines 169-180).
+3. **Filtering and dismissal:** As the user continues typing after `/`, extract the text between the trigger position and the cursor to filter the command list. If a space is typed before a command is selected, close the menu and treat the text as a normal message (lines 181-197).
+4. **Custom `onKeyDown`:** Pass an `onKeyDown` handler to `MessageBar` to intercept `ArrowUp`/`ArrowDown` (navigate the menu), `Enter` (select the focused command), and `Escape` (dismiss the menu) while the menu is open (lines 200-224, 364).
+5. **PatternFly `Menu` + `Popper`:** Render a `<Menu>` with `<MenuItem>` entries inside a `<Popper>`, using the textarea ref as `triggerRef` and `placement="top-start"` to position the menu above the input (lines 282-311, 353-359).
+6. **Command selection callback:** On select, clear the `MessageBar` value, close the menu, and fire the desired action (in this demo, a simulated bot response after a 3-second delay). The command text is never sent as a user message (lines 120-167).
+
+```js file="./ChatbotSlashCommands.tsx" isFullscreen
+
+```
