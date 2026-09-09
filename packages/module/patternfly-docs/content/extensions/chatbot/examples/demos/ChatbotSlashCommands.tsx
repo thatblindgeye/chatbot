@@ -8,10 +8,7 @@ import ChatbotFooter, { ChatbotFootnote } from '@patternfly/chatbot/dist/dynamic
 import MessageBar from '@patternfly/chatbot/dist/dynamic/MessageBar';
 import MessageBox from '@patternfly/chatbot/dist/dynamic/MessageBox';
 import Message, { MessageProps } from '@patternfly/chatbot/dist/dynamic/Message';
-import ChatbotHeader, {
-  ChatbotHeaderMain,
-  ChatbotHeaderTitle
-} from '@patternfly/chatbot/dist/dynamic/ChatbotHeader';
+import ChatbotHeader, { ChatbotHeaderMain, ChatbotHeaderTitle } from '@patternfly/chatbot/dist/dynamic/ChatbotHeader';
 
 import PFHorizontalLogoColor from '../UI/PF-HorizontalLogo-Color.svg';
 import PFHorizontalLogoReverse from '../UI/PF-HorizontalLogo-Reverse.svg';
@@ -68,8 +65,6 @@ const welcomePrompts = [
     message: 'How can I help you today?'
   }
 ];
-
-const date = new Date();
 
 const generateId = () => {
   const id = Date.now() + Math.random();
@@ -188,8 +183,7 @@ export const ChatbotSlashCommandsDemo: FunctionComponent = () => {
         const searchTerm = textAfterTrigger.toLowerCase();
         const filtered = slashCommands.filter(
           (cmd) =>
-            cmd.command.toLowerCase().includes(`/${searchTerm}`) ||
-            cmd.description.toLowerCase().includes(searchTerm)
+            cmd.command.toLowerCase().includes(`/${searchTerm}`) || cmd.description.toLowerCase().includes(searchTerm)
         );
         setFilteredCommands(filtered);
         setActiveItemIndex(0);
@@ -323,10 +317,7 @@ export const ChatbotSlashCommandsDemo: FunctionComponent = () => {
       <Chatbot isVisible displayMode={ChatbotDisplayMode.fullscreen} ref={chatbotRef}>
         <ChatbotHeader>
           <ChatbotHeaderMain>
-            <ChatbotHeaderTitle
-              displayMode={ChatbotDisplayMode.fullscreen}
-              showOnFullScreen={horizontalLogo}
-            />
+            <ChatbotHeaderTitle displayMode={ChatbotDisplayMode.fullscreen} showOnFullScreen={horizontalLogo} />
           </ChatbotHeaderMain>
         </ChatbotHeader>
         <ChatbotContent>
