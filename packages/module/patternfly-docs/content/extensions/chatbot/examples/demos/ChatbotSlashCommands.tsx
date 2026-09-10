@@ -66,6 +66,8 @@ const welcomePrompts = [
   }
 ];
 
+const slashCommandMenuId = 'chatbot-slash-command-menu';
+
 const generateId = () => {
   const id = Date.now() + Math.random();
   return id.toString();
@@ -176,7 +178,7 @@ export const ChatbotSlashCommandsDemo: FunctionComponent = () => {
     } else if (isSlashMenuOpen && triggerPosition >= 0) {
       const textAfterTrigger = newValue.substring(triggerPosition + 1, cursorPos);
 
-      if (textAfterTrigger.includes(' ') || cursorPos < triggerPosition) {
+      if (textAfterTrigger.includes(' ') || cursorPos <= triggerPosition || newValue[triggerPosition] !== '/') {
         setIsSlashMenuOpen(false);
         setTriggerPosition(-1);
       } else {
@@ -276,6 +278,8 @@ export const ChatbotSlashCommandsDemo: FunctionComponent = () => {
   const slashMenu = (
     <Menu
       ref={menuRef}
+      id={slashCommandMenuId}
+      role="listbox"
       onSelect={(_event, itemId) => {
         const command = filteredCommands.find((c) => c.id === itemId?.toString());
         if (command) {
@@ -284,11 +288,12 @@ export const ChatbotSlashCommandsDemo: FunctionComponent = () => {
       }}
     >
       <MenuContent>
-        <MenuList>
+        <MenuList aria-label="Slash commands">
           {filteredCommands.length > 0 ? (
             filteredCommands.map((cmd, index) => (
               <MenuItem
                 key={cmd.id}
+                id={`${slashCommandMenuId}-${cmd.id}`}
                 itemId={cmd.id}
                 description={cmd.description}
                 isFocused={index === activeItemIndex}
@@ -354,6 +359,17 @@ export const ChatbotSlashCommandsDemo: FunctionComponent = () => {
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             innerRef={textareaRef}
+            role="combobox"
+            aria-label="Message"
+            aria-autocomplete="list"
+            aria-controls={slashCommandMenuId}
+            aria-expanded={isSlashMenuOpen}
+            aria-haspopup="listbox"
+            aria-activedescendant={
+              isSlashMenuOpen && filteredCommands[activeItemIndex]
+                ? `${slashCommandMenuId}-${filteredCommands[activeItemIndex].id}`
+                : undefined
+            }
             hasAttachButton={false}
             isSendButtonDisabled={isSendButtonDisabled}
             placeholder='Type a message or "/" for commands...'

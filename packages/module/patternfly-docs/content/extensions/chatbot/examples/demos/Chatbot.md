@@ -210,7 +210,8 @@ This demo adds slash command support to a fullscreen ChatBot. The following lift
 3. **Filtering and dismissal:** As the user continues typing after `/`, extract the text between the trigger position and the cursor to filter the command list. If a space is typed before a command is selected, close the menu and treat the text as a normal message (lines 181-197).
 4. **Custom `onKeyDown`:** Pass an `onKeyDown` handler to `MessageBar` to intercept `ArrowUp`/`ArrowDown` (navigate the menu), `Enter` (select the focused command), and `Escape` (dismiss the menu) while the menu is open (lines 200-224, 364).
 5. **PatternFly `Menu` + `Popper`:** Render a `<Menu>` with `<MenuItem>` entries inside a `<Popper>`, using the textarea ref as `triggerRef` and `placement="top-start"` to position the menu above the input (lines 282-311, 353-359).
-6. **Command selection callback:** On select, clear the `MessageBar` value, close the menu, and fire the desired action (in this demo, a simulated bot response after a 3-second delay). The command text is never sent as a user message (lines 120-167).
+6. **Accessibility:** Give the `<MenuList>` an accessible name with `aria-label`, and give each `<MenuItem>` a stable `id`. Configure the `MessageBar` textarea as a `role="combobox"` with an accessible label, `aria-autocomplete="list"`, `aria-haspopup="listbox"`, `aria-controls`, `aria-expanded`, and `aria-activedescendant`. Set the `<Menu>` to `role="listbox"` and connect its ID and active item IDs to the textarea so assistive technologies announce the menu when it opens and announce each command while navigating it (slash-command menu lines 281-296 and textarea attributes lines 362-372; the same wiring appears in the command-parsing demo at lines 250-265 and 338-348).
+7. **Command selection callback:** On select, clear the `MessageBar` value, close the menu, and fire the desired action (in this demo, a simulated bot response after a 3-second delay). The command text is never sent as a user message (lines 120-167).
 
 ```js file="./ChatbotSlashCommands.tsx" isFullscreen
 
@@ -218,7 +219,7 @@ This demo adds slash command support to a fullscreen ChatBot. The following lift
 
 ### Commands with message context
 
-This demo extends the slash command pattern to support command parsing at send time. Selecting a command inserts its name into the `MessageBar`, where users can add context and select additional commands. When the message is sent, valid command tokens are parsed and executed while the remaining text is passed along as context; command requests are not added as user messages.
+This demo extends the slash command pattern to support command parsing at send time. Selecting a command inserts its name into the `MessageBar`, where users can add context and select additional commands. When the message is sent, valid command tokens are parsed and executed while the remaining text is passed along as context; command requests are not added as user messages. It uses the same accessibility wiring as the slash-command demo: a named `MenuList`, stable command item IDs, and a labeled `MessageBar` combobox connected with `aria-controls`, `aria-expanded`, and `aria-activedescendant`.
 
 ```js file="./ChatbotCommandParsing.tsx" isFullscreen
 

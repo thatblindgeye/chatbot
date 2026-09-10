@@ -53,6 +53,8 @@ const welcomePrompts = [
   }
 ];
 
+const commandMenuId = 'chatbot-command-parsing-menu';
+
 const generateId = () => (Date.now() + Math.random()).toString();
 
 const getCommandMatches = (value: string) => {
@@ -132,7 +134,7 @@ export const ChatbotCommandParsingDemo: FunctionComponent = () => {
       setIsCommandMenuOpen(true);
     } else if (isCommandMenuOpen && triggerPosition >= 0) {
       const searchTerm = newValue.substring(triggerPosition + 1, cursorPosition);
-      if (searchTerm.includes(' ') || cursorPosition < triggerPosition) {
+      if (searchTerm.includes(' ') || cursorPosition <= triggerPosition || newValue[triggerPosition] !== '/') {
         setIsCommandMenuOpen(false);
         setTriggerPosition(-1);
       } else {
@@ -245,6 +247,8 @@ export const ChatbotCommandParsingDemo: FunctionComponent = () => {
   const commandMenu = (
     <Menu
       ref={menuRef}
+      id={commandMenuId}
+      role="listbox"
       onSelect={(_event, itemId) => {
         const command = filteredCommands.find((item) => item.id === itemId?.toString());
         if (command) {
@@ -253,11 +257,12 @@ export const ChatbotCommandParsingDemo: FunctionComponent = () => {
       }}
     >
       <MenuContent>
-        <MenuList>
+        <MenuList aria-label="Commands">
           {filteredCommands.length > 0 ? (
             filteredCommands.map((command, index) => (
               <MenuItem
                 key={command.id}
+                id={`${commandMenuId}-${command.id}`}
                 itemId={command.id}
                 description={command.description}
                 isFocused={index === activeItemIndex}
@@ -330,6 +335,17 @@ export const ChatbotCommandParsingDemo: FunctionComponent = () => {
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             innerRef={textareaRef}
+            role="combobox"
+            aria-label="Message"
+            aria-autocomplete="list"
+            aria-controls={commandMenuId}
+            aria-expanded={isCommandMenuOpen}
+            aria-haspopup="listbox"
+            aria-activedescendant={
+              isCommandMenuOpen && filteredCommands[activeItemIndex]
+                ? `${commandMenuId}-${filteredCommands[activeItemIndex].id}`
+                : undefined
+            }
             hasAttachButton={false}
             isSendButtonDisabled={isSendButtonDisabled}
             placeholder='Type a message or "/" for commands...'
